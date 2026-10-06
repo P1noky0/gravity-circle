@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Gravity Circle — V4</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  background: #050505;
+  color: white;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  overflow-x: hidden;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+}
+
+.hero-content {
+  text-align: center;
+}
+
+.eyebrow {
+  color: #666;
+
+  font-size: 10px;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+
+  margin-bottom: 24px;
+}
+
+.hero h1 {
+  font-size: clamp(60px, 11vw, 160px);
+
+  font-weight: 500;
+  letter-spacing: -.075em;
+
+  line-height: .9;
+}
+
+.hero p {
+  margin-top: 28px;
+
+  color: #666;
+
+  font-size: 14px;
+  letter-spacing: .08em;
+}
+
+.scroll-indicator {
+  position: absolute;
+
+  bottom: 35px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  color: #555;
+
+  font-size: 10px;
+  letter-spacing: .3em;
+
+  text-transform: uppercase;
+
+  text-align: center;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 45px;
+
+  margin: 12px auto 0;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #777,
+      transparent
+    );
+}
+
+
+/* =========================================================
+   MAIN SCROLL AREA
+========================================================= */
+
+.circle-section {
+  height: 400vh;
+
+  position: relative;
+}
+
+.sticky {
+  height: 100vh;
+
+  position: sticky;
+  top: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   AMBIENT LIGHT
+========================================================= */
+
+.ambient {
+  position: absolute;
+
+  width: min(85vw, 800px);
+
+  aspect-ratio: 1;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,255,255,.055),
+      transparent 65%
+    );
+
+  filter: blur(55px);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   CIRCLE SIZE
+========================================================= */
+
+.circle-wrapper {
+  width: min(70vw, 580px);
+
+  aspect-ratio: 1;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =========================================================
+   GRAVITY OBJECT
+========================================================= */
+
+/*
+  这一层就是整个“有重量的东西”。
+
+  它的 rotation 不直接等于 scroll。
+
+  JavaScript 会让它受到：
+
+  Scroll force
+  +
+  Gravity
+  +
+  Damping
+
+  三者共同影响。
+*/
+
+.gravity-object {
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: 50%;
+
+  transform-origin: center center;
+
+  will-change: transform;
+}
+
+
+/* =========================================================
+   MAIN CIRCLE
+========================================================= */
+
+.circle {
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 36% 28%,
+      #303030 0%,
+      #171717 32%,
+      #080808 70%,
+      #040404 100%
+    );
+
+  border:
+    1px solid rgba(255,255,255,.1);
+
+  box-shadow:
+    0 0 70px rgba(255,255,255,.025),
+    inset 0 1px 2px rgba(255,255,255,.13),
+    inset 0 -35px 80px rgba(0,0,0,.75);
+}
+
+
+/* =========================================================
+   METAL OUTER RING
+========================================================= */
+
+.metal-ring {
+  position: absolute;
+
+  inset: -4px;
+
+  border-radius: 50%;
+
+  background:
+    conic-gradient(
+      from 0deg,
+
+      #111 0deg,
+      #888 18deg,
+      #222 38deg,
+
+      #080808 75deg,
+
+      #666 120deg,
+      #151515 155deg,
+
+      #080808 205deg,
+
+      #777 270deg,
+      #111 305deg,
+
+      #888 340deg,
+      #111 360deg
+    );
+
+  z-index: -1;
+
+  filter:
+    drop-shadow(
+      0 0 15px rgba(255,255,255,.08)
+    );
+}
+
+.metal-ring::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 2px;
+
+  border-radius: 50%;
+
+  background: #050505;
+}
+
+
+/* =========================================================
+   LIGHT ARC
+========================================================= */
+
+.light-arc {
+  position: absolute;
+
+  inset: 12px;
+
+  border-radius: 50%;
+
+  background:
+    conic-gradient(
+      from 0deg,
+
+      transparent 0deg,
+
+      transparent 10deg,
+
+      rgba(255,255,255,.95) 20deg,
+
+      rgba(255,255,255,.18) 35deg,
+
+      transparent 58deg,
+
+      transparent 210deg,
+
+      rgba(255,255,255,.08) 240deg,
+
+      transparent 275deg,
+
+      transparent 360deg
+    );
+
+  -webkit-mask:
+    radial-gradient(
+      farthest-side,
+      transparent calc(100% - 4px),
+      #000 calc(100% - 3px)
+    );
+
+  mask:
+    radial-gradient(
+      farthest-side,
+      transparent calc(100% - 4px),
+      #000 calc(100% - 3px)
+    );
+
+  filter:
+    drop-shadow(
+      0 0 10px rgba(255,255,255,.45)
+    );
+}
+
+
+/* =========================================================
+   INNER RING
+========================================================= */
+
+.inner-ring {
+  position: absolute;
+
+  inset: 55px;
+
+  border-radius: 50%;
+
+  border:
+    1px solid rgba(255,255,255,.08);
+}
+
+
+/* =========================================================
+   TICKS
+========================================================= */
+
+.ticks {
+  position: absolute;
+
+  inset: 28px;
+
+  border-radius: 50%;
+}
+
+.tick {
+  position: absolute;
+
+  top: 0;
+  left: 50%;
+
+  width: 1px;
+  height: 15px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255,255,255,.55),
+      transparent
+    );
+
+  transform-origin:
+    50% min(34vw, 250px);
+}
+
+.tick:nth-child(1)  { transform: rotate(0deg); }
+.tick:nth-child(2)  { transform: rotate(30deg); }
+.tick:nth-child(3)  { transform: rotate(60deg); }
+.tick:nth-child(4)  { transform: rotate(90deg); }
+.tick:nth-child(5)  { transform: rotate(120deg); }
+.tick:nth-child(6)  { transform: rotate(150deg); }
+.tick:nth-child(7)  { transform: rotate(180deg); }
+.tick:nth-child(8)  { transform: rotate(210deg); }
+.tick:nth-child(9)  { transform: rotate(240deg); }
+.tick:nth-child(10) { transform: rotate(270deg); }
+.tick:nth-child(11) { transform: rotate(300deg); }
+.tick:nth-child(12) { transform: rotate(330deg); }
+
+
+/* =========================================================
+   TOP MARKER
+========================================================= */
+
+.top-marker {
+  position: absolute;
+
+  top: 6%;
+  left: 50%;
+
+  width: 12px;
+  height: 12px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius: 50%;
+
+  background: #fff;
+
+  box-shadow:
+    0 0 10px #fff,
+    0 0 30px rgba(255,255,255,.7);
+}
+
+
+/* =========================================================
+   GRAVITY FOOT
+========================================================= */
+
+/*
+  这个就是“脚”。
+
+  它永远跟着 gravity-object。
+
+  所以当整个 circle 倾斜：
+
+       circle
+          \
+           \
+            ●
+            ↓
+           FOOT
+
+  当停止 scroll：
+
+           ↓
+           ↓
+          FOOT
+
+  会回到屏幕下方。
+*/
+
+.foot {
+  position: absolute;
+
+  left: 50%;
+  bottom: -34px;
+
+  width: 62px;
+  height: 42px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius:
+    0 0 32px 32px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #202020,
+      #070707
+    );
+
+  border:
+    1px solid rgba(255,255,255,.12);
+
+  box-shadow:
+    0 15px 30px rgba(0,0,0,.7),
+    inset 0 1px 2px rgba(255,255,255,.08);
+}
+
+
+/*
+  Foot highlight
+*/
+
+.foot::before {
+  content: "";
+
+  position: absolute;
+
+  top: 5px;
+  left: 10px;
+  right: 10px;
+
+  height: 2px;
+
+  background:
+    rgba(255,255,255,.12);
+
+  border-radius: 50%;
+}
+
+
+/* =========================================================
+   CENTER
+========================================================= */
+
+.center {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 125px;
+  height: 125px;
+
+  transform:
+    translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle at 35% 25%,
+      #252525,
+      #0a0a0a 65%
+    );
+
+  border:
+    1px solid rgba(255,255,255,.15);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.85),
+    inset 0 1px 2px rgba(255,255,255,.12),
+    inset 0 -18px 35px rgba(0,0,0,.65);
+
+  z-index: 10;
+}
+
+.center::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 9px;
+
+  border-radius: 50%;
+
+  border:
+    1px solid rgba(255,255,255,.05);
+}
+
+.center-content {
+  position: relative;
+
+  text-align: center;
+}
+
+.degree {
+  font-size: 26px;
+
+  letter-spacing: -.05em;
+}
+
+.label {
+  margin-top: 5px;
+
+  color: #666;
+
+  font-size: 8px;
+
+  letter-spacing: .22em;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   UI
+========================================================= */
+
+.side-info {
+  position: absolute;
+
+  left: 7vw;
+  bottom: 9vh;
+
+  color: #555;
+
+  font-size: 10px;
+
+  letter-spacing: .2em;
+
+  text-transform: uppercase;
+
+  line-height: 1.8;
+}
+
+.side-info strong {
+  color: #aaa;
+
+  font-weight: 400;
+}
+
+.progress {
+  position: absolute;
+
+  right: 7vw;
+  bottom: 9vh;
+
+  color: #555;
+
+  font-size: 10px;
+
+  letter-spacing: .2em;
+}
+
+
+/* =========================================================
+   END
+========================================================= */
+
+.end {
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.end h2 {
+  font-size: clamp(55px, 10vw, 150px);
+
+  font-weight: 500;
+
+  letter-spacing: -.07em;
+}
+
+.end p {
+  margin-top: 25px;
+
+  color: #666;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .circle-wrapper {
+    width: 80vw;
+  }
+
+  .center {
+    width: 100px;
+    height: 100px;
+  }
+
+  .foot {
+    width: 50px;
+    height: 34px;
+
+    bottom: -28px;
+  }
+
+  .side-info {
+    left: 5vw;
+    bottom: 5vh;
+  }
+
+  .progress {
+    right: 5vw;
+    bottom: 5vh;
+  }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =======================================================
+     HERO
+======================================================= -->
+
+<section class="hero">
+
+  <div class="hero-content">
+
+    <div class="eyebrow">
+      Gravity / Scroll / V4
+    </div>
+
+    <h1>WEIGHT.</h1>
+
+    <p>
+      Scroll anywhere. Stop anywhere. Gravity finds its way home.
+    </p>
+
+  </div>
+
+
+  <div class="scroll-indicator">
+
+    Scroll
+
+    <div class="scroll-line"></div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
+<section class="circle-section">
+
+  <div class="sticky">
+
+
+    <div class="ambient"></div>
+
+
+    <div class="circle-wrapper">
+
+
+      <!-- ===================================================
+           PHYSICS OBJECT
+      ==================================================== -->
+
+      <div
+        class="gravity-object"
+        id="gravityObject"
+      >
+
+
+        <!-- Circle -->
+
+        <div class="circle">
+
+          <div class="metal-ring"></div>
+
+
+          <!-- Light -->
+
+          <div class="light-arc"></div>
+
+
+          <!-- Inner -->
+
+          <div class="inner-ring"></div>
+
+
+          <!-- Ticks -->
+
+          <div class="ticks">
+
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+            <div class="tick"></div>
+
+          </div>
+
+
+          <!-- Marker -->
+
+          <div class="top-marker"></div>
+
+
+          <!-- Gravity foot -->
+
+          <div class="foot"></div>
+
+
+          <!-- Center -->
+
+          <div class="center">
+
+            <div class="center-content">
+
+              <div
+                class="degree"
+                id="degree"
+              >
+                0°
+              </div>
+
+              <div class="label">
+                Gravity
+              </div>
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="side-info">
+
+      <div>
+        <strong>PHYSICS</strong>
+      </div>
+
+      <div>
+        Gravity · Inertia · Damping
+      </div>
+
+    </div>
+
+
+    <div
+      class="progress"
+      id="progress"
+    >
+      0%
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =======================================================
+     END
+======================================================= -->
+
+<section class="end">
+
+  <div>
+
+    <div class="eyebrow">
+      Interaction Complete
+    </div>
+
+    <h2>GROUNDED.</h2>
+
+    <p>
+      Wherever you stop, gravity brings it home.
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<script>
+
+const gravityObject =
+  document.getElementById("gravityObject");
+
+const degree =
+  document.getElementById("degree");
+
+const progress =
+  document.getElementById("progress");
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let scrollY = window.scrollY;
+
+let rotation = 0;
+
+let angularVelocity = 0;
+
+let lastScrollDelta = 0;
+
+let isScrolling = false;
+
+let stopTimer = null;
+
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+
+/*
+  Scroll rotation sensitivity
+
+  scroll 的时候可以自由转很多圈
+*/
+
+const scrollSensitivity = 0.85;
+
+
+/*
+  多久没收到 scroll
+  才认为用户真的停了
+*/
+
+const stopDelay = 140;
+
+
+/*
+  ================================================
+  GRAVITY
+  ================================================
+
+  这里故意调低。
+
+  之前太快就是因为 gravity
+  + spring 太强。
+
+  现在会明显慢很多。
+*/
+
+const gravityStrength = 0.050;
+
+
+/*
+  ================================================
+  SPRING
+  ================================================
+
+  越小：
+
+  越慢
+  越柔
+  越像有重量
+*/
+
+const springStrength = 0.018;
+
+
+/*
+  ================================================
+  DAMPING
+  ================================================
+
+  越接近 1：
+
+  摇得越久。
+
+  0.94 会比较丝滑。
+*/
+
+const damping = 0.985;
+
+
+/*
+  停止 scroll 时保留多少惯性
+*/
+
+const stopMomentum = 0.15;
+
+
+/* =========================================================
+   SCROLL
+========================================================= */
+
+window.addEventListener(
+  "scroll",
+  () => {
+
+    const delta =
+      window.scrollY -
+      scrollY;
+
+
+    scrollY =
+      window.scrollY;
+
+
+    /*
+      用户正在 scroll。
+
+      Gravity 暂时关闭。
+    */
+
+    isScrolling = true;
+
+
+    /*
+      Scroll 直接控制 rotation。
+
+      不经过 gravity。
+    */
+
+    rotation +=
+      delta *
+      scrollSensitivity;
+
+
+    /*
+      保存最后一次 scroll 速度。
+
+      停止的时候会继续一点点。
+    */
+
+    lastScrollDelta =
+      delta;
+
+
+    /*
+      每次 scroll 都重新计时。
+    */
+
+    clearTimeout(
+      stopTimer
+    );
+
+
+    stopTimer =
+      setTimeout(
+        () => {
+
+          isScrolling = false;
+
+
+          /*
+            保留一点惯性。
+
+            不是马上停。
+          */
+
+          angularVelocity =
+            lastScrollDelta *
+            stopMomentum;
+
+        },
+        stopDelay
+      );
+
+  },
+  {
+    passive: true
+  }
+);
+
+
+/* =========================================================
+   PHYSICS
+========================================================= */
+
+function updatePhysics() {
+
+
+  /*
+    ========================================================
+    SCROLLING
+    ========================================================
+  */
+
+  if (isScrolling) {
+
+    /*
+      Scroll 的时候：
+
+      ❌ 没有 gravity
+      ❌ 没有 spring
+
+      让 circle 完全自由。
+    */
+
+    angularVelocity *=
+      0.80;
+
+  }
+
+
+  /*
+    ========================================================
+    STOPPED
+    ========================================================
+  */
+
+  else {
+
+
+    /*
+      ----------------------------------------------
+      重点：
+
+      不再 normalize angle。
+
+      不找“最短路径”。
+
+      我们直接使用真实角度。
+
+      所以：
+
+        右边 → 继续向右 → 下
+
+        左边 → 继续向左 → 下
+
+      不会突然跳方向。
+      ----------------------------------------------
+    */
+
+
+    /*
+      当前角度转换成 radians
+    */
+
+    const radians =
+      rotation *
+      Math.PI /
+      180;
+
+
+    /*
+      Gravity torque
+
+      sin(angle) 会自然产生：
+
+        右边 → 往下
+
+        左边 → 往下
+
+      这就是关键。
+    */
+
+    const gravityTorque =
+      -Math.sin(
+        radians
+      ) *
+      gravityStrength;
+
+
+    /*
+      Spring
+
+      当接近底部时，
+      慢慢把它稳定下来。
+    */
+
+    const springTorque =
+      -Math.sin(
+        radians
+      ) *
+      springStrength;
+
+
+    /*
+      Gravity + Spring
+    */
+
+    angularVelocity +=
+      gravityTorque +
+      springTorque;
+
+
+    /*
+      阻尼
+
+      让它慢慢停下来。
+    */
+
+    angularVelocity *=
+      damping;
+
+
+    /*
+      更新 rotation
+    */
+
+    rotation +=
+      angularVelocity;
+
+
+    /*
+      当已经非常接近正下方：
+
+      不要让它永远抖。
+
+      但是不要突然 snap。
+
+      只是在非常小的速度下
+      慢慢停住。
+    */
+
+    const normalized =
+      (
+        rotation %
+        360
+      );
+
+
+    const distanceFromBottom =
+      Math.abs(
+        normalized
+      );
+
+
+    if (
+      distanceFromBottom < 0.05 &&
+      Math.abs(
+        angularVelocity
+      ) < 0.008
+    ) {
+
+      angularVelocity *=
+        0.5;
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+function animate() {
+
+
+  updatePhysics();
+
+
+  /*
+    Apply rotation
+  */
+
+  gravityObject.style.transform =
+    `rotate(${rotation}deg)`;
+
+
+  /*
+    UI angle
+
+    只用于显示。
+  */
+
+  let displayAngle =
+    rotation % 360;
+
+
+  if (
+    displayAngle > 180
+  ) {
+
+    displayAngle -=
+      360;
+
+  }
+
+
+  if (
+    displayAngle < -180
+  ) {
+
+    displayAngle +=
+      360;
+
+  }
+
+
+  degree.textContent =
+    `${Math.round(
+      displayAngle
+    )}°`;
+
+
+  /*
+    Progress
+  */
+
+  const maxScroll =
+    document.documentElement
+      .scrollHeight -
+    window.innerHeight;
+
+
+  const scrollProgress =
+    Math.min(
+      Math.max(
+        scrollY /
+        maxScroll,
+
+        0
+      ),
+
+      1
+    );
+
+
+  progress.textContent =
+    `${Math.round(
+      scrollProgress * 100
+    )}%`;
+
+
+  requestAnimationFrame(
+    animate
+  );
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+animate();
+
+</script>
+
+</body>
+</html>
