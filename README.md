@@ -1,11 +1,11 @@
 # Gravity Circle
 
-An interactive gravity-based circle built with HTML, CSS and vanilla JavaScript.
+> A physics-inspired scroll interaction where inertia meets gravity.
 
-Scroll to rotate the circle.
+Scroll to rotate the circle.  
 Stop scrolling and gravity takes over.
 
-## Live Demo
+## ✨ Live Demo
 
 👉 **[Open Live Demo](https://p1noky0.github.io/gravity-circle/)**
 
@@ -26,6 +26,15 @@ Stop scrolling and gravity takes over.
 - CSS
 - Vanilla JavaScript
 
+## How It Works
+
+The circle follows your scroll movement.
+
+When scrolling stops, the object is affected by simulated gravity,
+inertia and damping.
+
+It swings toward its natural resting position and gradually settles.
+
 ## Attribution
 
 This project is free to use, modify, and build upon.
@@ -35,6 +44,7 @@ please credit the original author and include a link to the
 original repository.
 
 Original source:
+
 https://github.com/P1noky0/gravity-circle
 
 ## License
